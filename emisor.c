@@ -20,10 +20,11 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	socklen_t N;
 	char mensaje[] = "Mensaje 1";
 
-	float numeritos[3];
-	numeritos[0] = 3.2;
-	numeritos[1] = 2.83;
-	numeritos[2] = 0.69;
+	float array[3];
+	array[0] = 3.2;
+	array[1] = 2.83;
+	array[2] = 0.69;
+
         // creamos el socket del servidor
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
 		perror("No se pudo crear el socket\n");
@@ -55,16 +56,17 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
 	printf("IP: %s\nPuerto: %d\n",ip_str,ntohs(ipport_receptor.sin_port));
 	size_t nBytes = strlen(mensaje);
-	nBytes = sizeof(numeritos);
+	nBytes = 4;
 
     // enviamos mensaje
-	if ((N = sendto(socket_emisor,numeritos,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
+  	for (int i = 0; i < 3; i++) {
+	if ((N = sendto(socket_emisor,&array[i],nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
 		perror("No se ha podido enviar el mensaje\n");
 		exit(EXIT_FAILURE);
 	}
 	
 	printf("%d/%ld bytes enviados\n",N,nBytes);
-
+	}
     // cerramos el socket del emisor
 	close(socket_emisor);
 
