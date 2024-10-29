@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
-    char msg[50];  // Cliente para el mensaje a enviar y recibir
+    char msg[5];  // Cliente para el mensaje a enviar y recibir
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
     
@@ -76,7 +76,19 @@ int main(int argc, char** argv) {
     }
     
 
-    msg[50]='\0';
+    msg[5]='\0';
+    // Sacamos por pantalla el mensaje recibido
+    printf("El mensaje es: %s\n",msg);
+    
+    
+    if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    {
+        perror("No se pudo recibir el mensaje correctamente\n");
+        close(socket_cliente);
+        return(EXIT_FAILURE);
+    }
+    
+    msg[5]='\0';
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
     

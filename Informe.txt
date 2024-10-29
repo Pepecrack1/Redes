@@ -1,3 +1,5 @@
 Comprueba qué ocurre si la función recvfrom() lee menos datos que los que envió la función sendto(). ¿Es posible recuperar los datos restantes con una nueva llamada a recvfrom()? Describe las modificaciones introducidas en los códigos y el resultado obtenido.
 
-
+Ponemos un tamaño de mensaje en el receptor mas pequeño que el tamaño de mensaje que envía el emisor.
+Hacemos dos recv seguidos, para ver si el primero lee una parte del mensaje, y el segundo otra.
+No sucede, el segundo recv no recibe nada a no ser que el servidor vuelva a enviar, y en ese caso, ambos reciben un el mensaje y guardan hasta donde cabe en su tamaño especificado, así que NO es posible recuperar todo
