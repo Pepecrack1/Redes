@@ -21,7 +21,7 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	char mensaje[] = "Mensaje 1\n";
 
         // creamos el socket del servidor
-	if ((socket_emisor = socket(AF_INET,SOCK_STREAM,0)) < 0) {
+	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
 		perror("No se pudo crear el socket\n");
 		exit(EXIT_FAILURE);
 	}

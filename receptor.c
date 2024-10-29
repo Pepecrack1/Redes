@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
     */
     if (bind(socket_cliente, (struct sockaddr *) &ipportreceptor, size) < 0) {
         perror("No se pudo asignar la dirección");
+        close(socket_cliente);
         exit(EXIT_FAILURE);
     }
     
@@ -60,6 +61,7 @@ int main(int argc, char** argv) {
     if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
+        close(socket_cliente);
         return(EXIT_FAILURE);
     }
     
@@ -70,7 +72,7 @@ int main(int argc, char** argv) {
             size: tamaño en bytes de la cadena destino
         */
     if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
-            printf("Se conectó cliente con IP: %s\n", ipconex);
+            printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
         }
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
