@@ -7,12 +7,18 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+
 /*==========RECEPTOR==========*/
 int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
-    char msg[50];  // Cliente para el mensaje a enviar y recibir
+    
+    float *msg = malloc(2 * sizeof(float));  //Empezamos con 2----------------------------------
+    if (msg == NULL) {
+        perror("ERROR en la reserva de memoria\n");
+        return (EXIT_FAILURE);
+    }
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
     
@@ -51,34 +57,40 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     
-    
+    int i=0;
     /*Recibimos el mensaje del servidor con recvfrom
             socket: identificador del socket del cliente
             buffer: puntero a donde se va a guardar el mensaje
             size: numero maximo de bytes a recibir
             flags: opciones de recepcion, por defecto 0
         */
-    if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    while(recvfrom(socket_cliente,&msg[i],sizeof(float),0,(struct sockaddr *) &ipportemisor,&size) >= 0)
     {
-        perror("No se pudo recibir el mensaje correctamente\n");
-        close(socket_cliente);
-        return(EXIT_FAILURE);
-    }    
-    
-    /*Convertir la dirección IP de binario a texto
-            af: AF_INET para IPv4
-            src: puntero a una struct in_addr (para IPv4)
-            dst: puntero a cadena donde se guarda el resultado
-            size: tamaño en bytes de la cadena destino
+        /*Convertir la dirección IP de binario a texto
+              af: AF_INET para IPv4
+              src: puntero a una struct in_addr (para IPv4)
+              dst: puntero a cadena donde se guarda el resultado
+              size: tamaño en bytes de la cadena destino
         */
-    if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
-            printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
-    }
+        if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
+              printf("Se conectó cliente con IP: %s y puerto %d | Mensaje: %f\n", ipconex, ntohs(ipportemisor.sin_port),msg[i]);
+        }
+        
+        i++;
+        
+        float *temp = realloc(msg, (i+1) * sizeof(float));
+        if (temp == NULL) {
+            perror("ERROR en la reserva de memoria\n");
+            free(msg); // Liberamos si falla
+            close(socket_cliente);
+            return (EXIT_FAILURE);
+        }
+        
+        msg = temp;
+        }
+        
+    printf("El numero de mensajes recibidos es %d\n",i);
     
-
-    msg[50]='\0';//------------------------------------------------------------------------------------------------ASI?
-    // Sacamos por pantalla el mensaje recibido
-    printf("El mensaje es: %s\n",msg);
     
     // Cerramos el socket al acabar el intercambio
     close(socket_cliente);
