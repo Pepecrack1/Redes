@@ -20,6 +20,10 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	socklen_t N;
 	char mensaje[] = "Mensaje 1";
 
+	float numeritos[3];
+	numeritos[0] = 3.2;
+	numeritos[1] = 2.83;
+	numeritos[2] = 0.69;
         // creamos el socket del servidor
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
 		perror("No se pudo crear el socket\n");
@@ -44,24 +48,17 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 		perror("No se pudo asignar direccion\n");
 		exit(EXIT_FAILURE);
 	}
-/*
-	printf("Esperando conexion ..\n");
 
-    // el socket queda a la espera de que el receptor solicite la conexion
-	if (listen(socket_emisor,(unsigned int) 50) < 0) {
-		perror("No se ha podido atender la conexion\n");
-		exit(EXIT_FAILURE);
-	}
-*/
 	socklen_t length_ptr = sizeof(struct sockaddr_in);
 
 	char ip_str[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
 	printf("IP: %s\nPuerto: %d\n",ip_str,ntohs(ipport_receptor.sin_port));
 	size_t nBytes = strlen(mensaje);
+	nBytes = sizeof(numeritos);
 
     // enviamos mensaje
-	if ((N = sendto(socket_emisor,mensaje,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
+	if ((N = sendto(socket_emisor,numeritos,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
 		perror("No se ha podido enviar el mensaje\n");
 		exit(EXIT_FAILURE);
 	}
