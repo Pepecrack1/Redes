@@ -18,12 +18,13 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	int socket_emisor;
 	struct sockaddr_in ipport_emisor,ipport_receptor;
 	socklen_t N;
-	char mensaje[] = "Mensaje 1";
 
-	float array[3];
+	float array[5];
 	array[0] = 3.2;
 	array[1] = 2.83;
 	array[2] = 0.69;
+	array[3] = 2.83234;
+	array[4] = 1.69;
 
         // creamos el socket del servidor
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
@@ -55,8 +56,7 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	char ip_str[INET_ADDRSTRLEN];
 	inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
 	printf("IP: %s\nPuerto: %d\n",ip_str,ntohs(ipport_receptor.sin_port));
-	size_t nBytes = strlen(mensaje);
-	nBytes = sizeof(array);
+	size_t nBytes=sizeof(array);
 
 	if ((N = sendto(socket_emisor,&nBytes,sizeof(int),0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
 		perror("No se ha podido enviar el mensaje\n");
@@ -66,13 +66,13 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	printf("Tamaño del mensaje enviado\n");
 
     	// enviamos mensaje
-	if ((N = sendto(socket_emisor,array,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
+	if ((N = sendto(socket_emisor,array,sizeof(array),0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
 		perror("No se ha podido enviar el mensaje\n");
 		exit(EXIT_FAILURE);
 	}
 	
 	printf("%d/%ld bytes enviados\n",N,nBytes);
-	}
+	
     // cerramos el socket del emisor
 	close(socket_emisor);
 

@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     }
     
     
-    
+    tamano/=sizeof(float);  // El emisor envía el sizeof(array), el numero de bytes, pero nosotros queremos el numero de floats, no el de bytes. para reservar
     msg = malloc( tamano * sizeof(float));  // Reservamos memoria para el mensaje
     if (msg == NULL) {
         perror("ERROR en la reserva de memoria\n");
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
             size: numero maximo de bytes a recibir
             flags: opciones de recepcion, por defecto 0
         */
-    if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    if(recvfrom(socket_cliente,msg,tamano*sizeof(float),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
@@ -103,13 +103,12 @@ int main(int argc, char** argv) {
     }         
     
     
-    printf("El mensaje es: [ "); // Sacamos por pantalla el mensaje recibido
+    printf("El mensaje es: "); // Sacamos por pantalla el mensaje recibido
     for(int i=0;i<tamano;i++)
     {
         printf("%f, ",msg[i]);
     }
-    printf("]\n");
-    
+    printf("\n");
     
     printf("El numero de mensajes recibidos es %d\n",tamano);
     
