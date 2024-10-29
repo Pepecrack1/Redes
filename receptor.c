@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
-    char msg[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";  // Cliente para el mensaje a enviar y recibir
+    char msg[]="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";  // Cliente para el mensaje a enviar y recibir
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
     
@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
         return(EXIT_FAILURE);
-    }
+    }    
     
     /*Convertir la dirección IP de binario a texto
             af: AF_INET para IPv4
@@ -73,7 +73,19 @@ int main(int argc, char** argv) {
         */
     if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
             printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
-        }
+    }
+    
+    // Sacamos por pantalla el mensaje recibido
+    printf("El mensaje es: %s\n",msg);
+    
+    
+    if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    {
+        perror("No se pudo recibir el mensaje correctamente\n");
+        close(socket_cliente);
+        return(EXIT_FAILURE);
+    }
+    
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
     

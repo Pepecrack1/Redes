@@ -1,0 +1,3 @@
+Comprueba qué ocurre si la función recvfrom() lee menos datos que los que envió la función sendto(). ¿Es posible recuperar los datos restantes con una nueva llamada a recvfrom()? Describe las modificaciones introducidas en los códigos y el resultado obtenido.
+
+
