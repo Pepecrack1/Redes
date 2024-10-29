@@ -18,7 +18,7 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	int socket_emisor;
 	struct sockaddr_in ipport_emisor,ipport_receptor;
 	socklen_t N;
-	char mensaje[] = "Mensaje 1asjkdsfgndhjofj lgnslkdgmldgkmnldm";
+	char mensaje[] = "Mensaje 1asjkdsfgndhjofjesakjdsnfogbjlmvflkdsma fksjfdkfdsgvhbjnkmñl,ñklnjkb";
 
         // creamos el socket del servidor
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {

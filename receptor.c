@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
-    char msg[]="XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";  // Cliente para el mensaje a enviar y recibir
+    char msg[5];  // Cliente para el mensaje a enviar y recibir
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
     
@@ -75,6 +75,8 @@ int main(int argc, char** argv) {
             printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
     }
     
+
+    msg[5]='\0';
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
     
@@ -86,6 +88,7 @@ int main(int argc, char** argv) {
         return(EXIT_FAILURE);
     }
     
+    msg[5]='\0';
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
     
