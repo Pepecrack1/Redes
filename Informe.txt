@@ -3,3 +3,7 @@ Comprueba qué ocurre si la función recvfrom() lee menos datos que los que envi
 Ponemos un tamaño de mensaje en el receptor mas pequeño que el tamaño de mensaje que envía el emisor.
 Hacemos dos recv seguidos, para ver si el primero lee una parte del mensaje, y el segundo otra.
 No sucede, el segundo recv no recibe nada a no ser que el servidor vuelva a enviar, y en ese caso, ambos reciben un el mensaje y guardan hasta donde cabe en su tamaño especificado, así que NO es posible recuperar todo
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Modificar los programas para que, en vez de transmitir cadenas de texto, se transmita un array de números de tipo float. El número de datos enviados se debe especificar únicamente en el programa que envía. Es decir, el programa que recibe debe ser capaz de recibir todos los datos enviados y determinar dicho número de datos. Describe las modificaciones introducidas en los códigos y el resultado obtenido.
+
+
