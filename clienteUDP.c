@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
             close(socket_cliente);
             return(EXIT_FAILURE);
         }
-        printf("%d bytes enviados\n",N);
+        printf("%d bytes recibidos\n",N);
         
         // Escribimos la respuesta en el archivo de salida
         fputs(msg, salida);

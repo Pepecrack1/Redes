@@ -12,9 +12,8 @@
 int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario 
 
     // detectamos argumentos y hacemos la conversion de tipos
-	if (argc < 2) { perror("No detectaron argumentos\n"); exit(EXIT_FAILURE); }
+	if (argc != 2) { perror("No detectaron argumentos\n"); exit(EXIT_FAILURE); }
 	u_int16_t puerto_propio = (u_int16_t) atoi(argv[1]);
-	u_int16_t puerto_destinatario = (u_int16_t) atoi(argv[3]);
 
     //declaraciones previas
 	int socket_emisor;
@@ -33,14 +32,6 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	ipport_emisor.sin_addr.s_addr = htonl(INADDR_ANY);
 	ipport_emisor.sin_port = htons(puerto_propio);
 
-	ipport_receptor.sin_family = AF_INET;
-	ipport_receptor.sin_port = htons(puerto_destinatario);
-
-	if (inet_pton(AF_INET, argv[2], &ipport_receptor.sin_addr) <= 0) {
-        perror("Error en inet_pton\n");
-        exit(EXIT_FAILURE);
- 	}
-
     // asociamos al socket la direccion y el puerto al que nos queremos conectar
 	if (bind(socket_emisor,(struct sockaddr*) &ipport_emisor,sizeof(struct sockaddr_in)) < 0) {
 		perror("No se pudo asignar direccion\n");
@@ -49,9 +40,6 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 
 	socklen_t length_ptr = sizeof(struct sockaddr_in);
 
-	char ip_str[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
-	printf("IP: %s\nPuerto: %d\n",ip_str,ntohs(ipport_receptor.sin_port));
 	size_t nBytes = 0;
 
 
@@ -79,8 +67,10 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 		    perror("No se ha podido enviar el mensaje\n");
 		    continue;
 		}
-
-		printf("%d bytes enviados\n",N);
+		
+                char ip_str[INET_ADDRSTRLEN];
+	        inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
+		printf("%d bytes enviados a IP: %s, Puerto: %d\n",N,ip_str,ntohs(ipport_receptor.sin_port));
 
 	}
 
