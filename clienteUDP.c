@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     char msg[1024];   // Buffer para el mensaje a enviar y recibir
     
     // Comprobamos que se introduzca el numero de argumentos correcto en línea de comandos
-    if(argc == 4) {
+    if(argc == 5) {
         strcpy(name_file, argv[1]);
         puertocli = atoi(argv[2]);   // Primer argumento: puerto (convertido de string a entero)
         strcpy(ipserv,argv[3]);
@@ -94,7 +94,6 @@ int main(int argc, char** argv) {
     // Leemos cada linea del archivo de entrada
     size_t len = 0;
     
-    
     while(fgets(msg,sizeof(msg), entrada)!=NULL)  // Mientras no llega al final del archivo
     {
         len = strlen(msg);    // Obtenemos longitud de la linea leida
@@ -121,7 +120,7 @@ int main(int argc, char** argv) {
                 flags: opciones de recepcion, por defecto 0
                 addr: puntero a un struct sockaddr con la dirección de la que se quiere enviar
                 length: tamaño de la estructura addr
-            */
+        */
         if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportcli,&size) < 0)
         {
             perror("No se pudo recibir el mensaje correctamente\n");

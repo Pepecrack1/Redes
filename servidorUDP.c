@@ -20,7 +20,7 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	int socket_emisor;
 	struct sockaddr_in ipport_emisor,ipport_receptor;
 	socklen_t N;
-	char mensaje[] = "Mensaje 1";
+	char mensaje[1024];
 
     // creamos el socket del servidor
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
@@ -60,41 +60,29 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 		N = 0;
 
 		if((N = recvfrom(socket_emisor,mensaje,sizeof(mensaje),0,(struct sockaddr *) &ipport_receptor,&length_ptr)) < 0)
-    	{
-	        perror("No se pudo recibir el mensaje correctamente\n");
-        	break;
+    	        {
+	            perror("No se pudo recibir el mensaje correctamente\n");
+            	    continue;
 	  	}
+	        
+	  	nBytes = strlen(mensaje) + 1;
 
-		printf("%d/%ld bytes recibidos\n",N,nBytes);
+		printf("%d bytes recibidos\n",N);
 
-		if (nBytes == 0) break;
 
-		N = 0;
-		nBytes = strlen(mensaje) + 1;
 
-		for (int i = 0; i < nBytes; i++) {
+		for (int i = 0; mensaje[i]!='\0'; i++) {
 			mensaje[i] = toupper(mensaje[i]);
 		}
-	
+	        N = 0;
 		if ((N = sendto(socket_emisor,mensaje,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
-			perror("No se ha podido enviar el mensaje\n");
-			break;
+		    perror("No se ha podido enviar el mensaje\n");
+		    continue;
 		}
 
 		printf("%d/%ld bytes enviados\n",N,nBytes);
 
 	}
-
-
-
-
-   	// enviamos mensaje
-	if ((N = sendto(socket_emisor,mensaje,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
-		perror("No se ha podido enviar el mensaje\n");
-		exit(EXIT_FAILURE);
-	}
-
-	printf("%d/%ld bytes enviados\n",N,nBytes);
 
     // cerramos el socket del emisor
 	close(socket_emisor);
