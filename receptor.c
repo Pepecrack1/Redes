@@ -40,6 +40,8 @@ int main(int argc, char** argv) {
     ipportreceptor.sin_family=AF_INET;
     ipportreceptor.sin_port=htons(puerto);
     
+    
+    
      /*Asignamos una direccion al socket con bind
         socket: identificador del socket
         addr: puntero a struct sockaddr con la direccion a asignar (ipportserv)
