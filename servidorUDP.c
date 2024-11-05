@@ -80,7 +80,7 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 		    continue;
 		}
 
-		printf("%d/%ld bytes enviados\n",N,nBytes);
+		printf("%d bytes enviados\n",N);
 
 	}
 

@@ -91,12 +91,23 @@ int main(int argc, char** argv) {
     }
     salida=fopen(name_file,"w");
    
+    /*Convertir la dirección IP de binario a texto
+            af: AF_INET para IPv4
+            src: puntero a una struct in_addr (para IPv4)
+            dst: puntero a cadena donde se guarda el resultado
+            size: tamaño en bytes de la cadena destino
+    */
+    if (inet_ntop(AF_INET, (const void*) &(ipportserv.sin_addr), ipserv,INET_ADDRSTRLEN) != NULL){
+            printf("IP: %s\nPuerto: %d\n", ipserv, ntohs(ipportserv.sin_port));
+    }
+    
     // Leemos cada linea del archivo de entrada
     size_t len = 0;
     
     while(fgets(msg,sizeof(msg), entrada)!=NULL)  // Mientras no llega al final del archivo
     {
         len = strlen(msg);    // Obtenemos longitud de la linea leida
+        sleep(3);
         
         
         /*Enviamos la línea, en minúsculas, al servidor
@@ -121,25 +132,14 @@ int main(int argc, char** argv) {
                 addr: puntero a un struct sockaddr con la dirección de la que se quiere enviar
                 length: tamaño de la estructura addr
         */
-        if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportcli,&size) < 0)
+        int N=0;
+        if((N=recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportcli,&size)) < 0)
         {
             perror("No se pudo recibir el mensaje correctamente\n");
             close(socket_cliente);
             return(EXIT_FAILURE);
-        } 
-        
-        //-------------------------------------------------------------------------------------------------------
-        
-        /*Convertir la dirección IP de binario a texto
-                af: AF_INET para IPv4
-                src: puntero a una struct in_addr (para IPv4)
-                dst: puntero a cadena donde se guarda el resultado
-                size: tamaño en bytes de la cadena destino
-        */
-        if (inet_ntop(AF_INET, (const void*) &(ipportserv.sin_addr), ipserv,INET_ADDRSTRLEN) != NULL){
-                printf("Se conectó cliente con IP: %s y puerto %d\n", ipserv, ntohs(ipportserv.sin_port));
         }
-        //-------------------------------------------------------------------------------------------------------
+        printf("%d bytes enviados\n",N);
         
         // Escribimos la respuesta en el archivo de salida
         fputs(msg, salida);
