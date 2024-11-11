@@ -2,8 +2,18 @@ Comprueba qué ocurre si la función recvfrom() lee menos datos que los que envi
 
 Ponemos un tamaño de mensaje en el receptor mas pequeño que el tamaño de mensaje que envía el emisor.
 Hacemos dos recv seguidos, para ver si el primero lee una parte del mensaje, y el segundo otra.
-No sucede, el segundo recv no recibe nada a no ser que el servidor vuelva a enviar, y en ese caso, ambos reciben un el mensaje y guardan hasta donde cabe en su tamaño especificado, así que NO es posible recuperar todo
+No sucede, el segundo recv no recibe nada a no ser que el servidor vuelva a enviar, y en ese caso, ambos reciben un el mensaje y guardan hasta donde cabe en su tamaño especificado, así que NO es posible recuperar todo.
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Modificar los programas para que, en vez de transmitir cadenas de texto, se transmita un array de números de tipo float. El número de datos enviados se debe especificar únicamente en el programa que envía. Es decir, el programa que recibe debe ser capaz de recibir todos los datos enviados y determinar dicho número de datos. Describe las modificaciones introducidas en los códigos y el resultado obtenido.
+
+Lo que hicimos, según entendimos, es en el emisor enviar primero un mensaje con el tamaño (en bytes) del array a recibir, que se enviará al receptor, y este reservará memoria para el array con ese tamaño.
+Después, el emisor envía al receptor el array completo en un único mensaje, y el receptor lo recibe sin problemas en el espacio reservado que tenía.
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Comprobación de que se pueden atender varios clientes simultáneamente. En el lazo del cliente, donde se van leyendo las líneas del archivo, introducir un sleep para que dé tiempo a lanzar un segundo cliente en otra terminal. Describe lo que ocurre.
+
+Introducimos el sleep en el lazo de lectura del cliente, le ponemos sleep(2) por cada lectura, para asegurar que no termina antes de tiempo.
+Ejecutamos entonces el servidor, y luego el primer cliente, que comienza a intercambiar datos con el servidor pero, antes de que termine, ejecutamos el segundo cliente, y observamos que este también empieza a intercambiar datos con el servidor, alternándose con el otro. Esto sucede ya que UDP es un protocolo no orientado a conexión, y entonces un servidor puede atender a varios clientes a la vez, ya que el servidor no establece conexión, y por tanto no se cierra a otros clientes hasta que termine la conexión, como sucede en TCP, sino que puede recibir mensajes de otros, atendiéndolos de forma independiente.
+
 
 

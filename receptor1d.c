@@ -55,31 +55,19 @@ int main(int argc, char** argv) {
     }
     
     
-    /*Recibimos el tamaño del mensaje del servidor con recvfrom
-            socket: identificador del socket del cliente
-            buffer: puntero a donde se va a guardar el mensaje
-            size: numero maximo de bytes a recibir
-            flags: opciones de recepcion, por defecto 0
-        */
+
     if(recvfrom(socket_cliente,&tamano,sizeof(tamano),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
         return(EXIT_FAILURE);
     } 
-    /*Convertir la dirección IP de binario a texto
-            af: AF_INET para IPv4
-            src: puntero a una struct in_addr (para IPv4)
-            dst: puntero a cadena donde se guarda el resultado
-            size: tamaño en bytes de la cadena destino
-        */
+
     if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
             printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
     }
     
-    
-    tamano/=sizeof(float);  // El emisor envía el sizeof(array), el numero de bytes, pero nosotros queremos el numero de floats, no el de bytes. para reservar
-    msg = malloc( tamano * sizeof(float));  // Reservamos memoria para el mensaje
+    msg = malloc(tamano);  // Reservamos memoria para el mensaje
     if (msg == NULL) {
         perror("ERROR en la reserva de memoria\n");
         free(msg); // Liberamos si falla
@@ -87,30 +75,21 @@ int main(int argc, char** argv) {
         return (EXIT_FAILURE);
     }
     
-    
-    
-    /*Recibimos el mensaje del servidor con recvfrom
-            socket: identificador del socket del cliente
-            buffer: puntero a donde se va a guardar el mensaje
-            size: numero maximo de bytes a recibir
-            flags: opciones de recepcion, por defecto 0
-        */
     if(recvfrom(socket_cliente,msg,tamano*sizeof(float),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
         return(EXIT_FAILURE);
-    }         
-    
-    
+    }
+    int num=(int)tamano/sizeof(float);
     printf("El mensaje es: "); // Sacamos por pantalla el mensaje recibido
-    for(int i=0;i<tamano;i++)
+    for(int i=0;i<num;i++)
     {
         printf("%f, ",msg[i]);
     }
     printf("\n");
     
-    printf("El numero de mensajes recibidos es %d\n",tamano);
+    printf("El numero de elementos recibidos es %d\n",num);
     
     // Cerramos el socket al acabar el intercambio
     close(socket_cliente);

@@ -12,6 +12,7 @@ int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
+    socklen_t N;  //Para contar el numero de bytes recibidos
     char msg[50];  // Cliente para el mensaje a enviar y recibir
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
@@ -36,9 +37,10 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     
-    ipportreceptor.sin_addr.s_addr=htonl(INADDR_ANY);
-    ipportreceptor.sin_family=AF_INET;
-    ipportreceptor.sin_port=htons(puerto);
+    //Inicializamos la estructura sockaddr del receptor
+    ipportreceptor.sin_addr.s_addr=htonl(INADDR_ANY);   //Cualquier direccion IP
+    ipportreceptor.sin_family=AF_INET;    //Familia de direcciones: IPv4
+    ipportreceptor.sin_port=htons(puerto);    //Convertir el puerto de orden de host a orden de red, short
     
     
     
@@ -59,8 +61,10 @@ int main(int argc, char** argv) {
             buffer: puntero a donde se va a guardar el mensaje
             size: numero maximo de bytes a recibir
             flags: opciones de recepcion, por defecto 0
+            addr: salida que es un puntero a un struct sockaddr con la dirección de la procedencia del paquete
+.           length_ptr: puntero que es parámetro de entrada indicando el tamaño de la estructura addr y de salida con el espacio real consumido
         */
-    if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    if((N=recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size)) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
@@ -78,12 +82,18 @@ int main(int argc, char** argv) {
     }
     
 
-    msg[50]='\0';//------------------------------------------------------------------------------------------------ASI?
-    // Sacamos por pantalla el mensaje recibido
-    printf("El mensaje es: %s\n",msg);
+    msg[50]='\0';   //Terminamo el mensaje con caracter de fin de palabra, para evitar errores
+    //Sacamos por pantalla el mensaje recibido
+    printf("El mensaje es: %s, numero bytes recibidos %d\n",msg,N);
     
-    // Cerramos el socket al acabar el intercambio
+    //Cerramos el socket al acabar el intercambio
     close(socket_cliente);
     return(EXIT_SUCCESS);
 
 }
+
+/*
+DF completa: determinante es una clave candidata entera
+DF transitiva: no coincide con ninguna CC
+DF parcial: es parte de una CC
+*/

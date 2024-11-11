@@ -52,12 +52,7 @@ int main(int argc, char** argv) {
     }
     
     
-    /*Recibimos el mensaje del servidor con recvfrom
-            socket: identificador del socket del cliente
-            buffer: puntero a donde se va a guardar el mensaje
-            size: numero maximo de bytes a recibir
-            flags: opciones de recepcion, por defecto 0
-        */
+    //Recibimos el mensaje del servidor con recvfrom
     if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
@@ -81,6 +76,7 @@ int main(int argc, char** argv) {
     printf("El mensaje es: %s\n",msg);
     
     
+     //Recibimos el segundo mensaje del servidor con recvfrom
     if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
