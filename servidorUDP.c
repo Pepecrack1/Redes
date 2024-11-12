@@ -43,10 +43,11 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	size_t nBytes = 0;
 
 
-	while(1) {
+	while(1) { // utilizamos un bucle para recibir tantos mensajes como envíe el cliente
 
 		N = 0;
 
+		// recibimos el mensaje
 		if((N = recvfrom(socket_emisor,mensaje,sizeof(mensaje),0,(struct sockaddr *) &ipport_receptor,&length_ptr)) < 0)
     	        {
 	            perror("No se pudo recibir el mensaje correctamente\n");
@@ -58,18 +59,20 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 		printf("%d bytes recibidos\n",N);
 
 
-
+		// ponemos el mensaje en mayusculas
 		for (int i = 0; mensaje[i]!='\0'; i++) {
 			mensaje[i] = toupper(mensaje[i]);
 		}
-	        N = 0;
+	    N = 0;
+
+	    // devolvemos el mensaje en mayusculas
 		if ((N = sendto(socket_emisor,mensaje,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
 		    perror("No se ha podido enviar el mensaje\n");
 		    continue;
 		}
 		
-                char ip_str[INET_ADDRSTRLEN];
-	        inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
+        char ip_str[INET_ADDRSTRLEN];
+	    inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
 		printf("%d bytes enviados a IP: %s, Puerto: %d\n",N,ip_str,ntohs(ipport_receptor.sin_port));
 
 	}

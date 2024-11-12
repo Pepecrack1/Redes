@@ -15,5 +15,4 @@ Comprobación de que se pueden atender varios clientes simultáneamente. En el l
 Introducimos el sleep en el lazo de lectura del cliente, le ponemos sleep(2) por cada lectura, para asegurar que no termina antes de tiempo.
 Ejecutamos entonces el servidor, y luego el primer cliente, que comienza a intercambiar datos con el servidor pero, antes de que termine, ejecutamos el segundo cliente, y observamos que este también empieza a intercambiar datos con el servidor, alternándose con el otro. Esto sucede ya que UDP es un protocolo no orientado a conexión, y entonces un servidor puede atender a varios clientes a la vez, ya que el servidor no establece conexión, y por tanto no se cierra a otros clientes hasta que termine la conexión, como sucede en TCP, sino que puede recibir mensajes de otros, atendiéndolos de forma independiente.
 
-
-
+🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰🥰
