@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     }
     
     
-    /*Recibimos el mensaje del servidor con recvfrom
+    /*Recibimos el mensaje del emisor con recvfrom
             socket: identificador del socket del cliente
             buffer: puntero a donde se va a guardar el mensaje
             size: numero maximo de bytes a recibir

@@ -9,75 +9,107 @@
 #include <ctype.h>
 #include <string.h>
 
-int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario 
-
-    // detectamos argumentos y hacemos la conversion de tipos
-	if (argc != 2) { perror("No detectaron argumentos\n"); exit(EXIT_FAILURE); }
-	u_int16_t puerto_propio = (u_int16_t) atoi(argv[1]);
-
-    //declaraciones previas
-	int socket_emisor;
-	struct sockaddr_in ipport_emisor,ipport_receptor;
+int main(int argc,char** argv) {
+        
+	int socket_emisor;  // Identificador del socket del emisor
+	struct sockaddr_in ipport_emisor,ipport_receptor; // Estructuras para almacenar la dirección del emisor y receptor
 	socklen_t N;
-	char mensaje[1024];
+	char mensaje[1024]; // Buffer para el mensaje a enviar y recibir
+	socklen_t size = sizeof(struct sockaddr_in);
+        u_int16_t puerto_propio;  // Puerto propio del servidor
+        
+        // Comprobamos que se introduzca el numero de argumentos correcto en línea de comandos
+	if (argc == 2)
+	{
+	    puerto_propio = (u_int16_t) atoi(argv[1]);  // Primer argumento: puerto propio del servidor
+	}
+	else
+	{
+	    // Valores por defecto si no se proporcionan argumentos
+            printf("No se proporcionaron argumentos correctos, trabajaremos con valores por defecto:  6665\nSi se quisieran introducir argumentos, hacer: ./ejecutable puertoPropio\n");
+            puerto_propio = (u_int16_t) 6665;
+	}
 
-    // creamos el socket del servidor
+        /*Creación del socket del cliente
+            domain: AF_INET para IPv4
+            style: SOCK_DGRAM para no orientado a conexion (UDP)
+            protocol: por defecto, 0
+        */
 	if ((socket_emisor = socket(AF_INET,SOCK_DGRAM,0)) < 0) {
 		perror("No se pudo crear el socket\n");
 		exit(EXIT_FAILURE);
 	}
 	
-	// modificamos la estructura sockaddr_in para introducir el puerto y la ip
-	ipport_emisor.sin_family = AF_INET;
-	ipport_emisor.sin_addr.s_addr = htonl(INADDR_ANY);
-	ipport_emisor.sin_port = htons(puerto_propio);
+	//Inicializamos la estructura sockaddr del servidor
+	ipport_emisor.sin_family = AF_INET; //Familia de direcciones: IPv4
+	ipport_emisor.sin_addr.s_addr = htonl(INADDR_ANY);  //Cualquier direccion IP
+	ipport_emisor.sin_port = htons(puerto_propio);  //Convertir el puerto de orden de host a orden de red, short
 
-    // asociamos al socket la direccion y el puerto al que nos queremos conectar
+        /*Asignamos una direccion al socket con bind
+            socket: identificador del socket
+            addr: puntero a struct sockaddr con la direccion a asignar (ipportserv)
+            length: tamaño de la estructura addr
+        */
 	if (bind(socket_emisor,(struct sockaddr*) &ipport_emisor,sizeof(struct sockaddr_in)) < 0) {
 		perror("No se pudo asignar direccion\n");
 		exit(EXIT_FAILURE);
 	}
 
-	socklen_t length_ptr = sizeof(struct sockaddr_in);
-
-	size_t nBytes = 0;
-
-
 	while(1) { // utilizamos un bucle para recibir tantos mensajes como envíe el cliente
 
 		N = 0;
 
-		// recibimos el mensaje
-		if((N = recvfrom(socket_emisor,mensaje,sizeof(mensaje),0,(struct sockaddr *) &ipport_receptor,&length_ptr)) < 0)
+		/*Recibimos el mensaje del cliente en minusculas con recvfrom
+                    socket: identificador del socket del cliente
+                    buffer: puntero a donde se va a guardar el mensaje
+                    size: numero maximo de bytes a recibir
+                    flags: opciones de recepcion, por defecto 0
+                    addr: salida que es un puntero a un struct sockaddr con la dirección de la procedencia del paquete
+        .           length_ptr: puntero que es parámetro de entrada indicando el tamaño de la estructura addr y de salida con el espacio real consumido
+                */
+		if((N = recvfrom(socket_emisor,mensaje,sizeof(mensaje),0,(struct sockaddr *) &ipport_receptor,&size)) < 0)
     	        {
 	            perror("No se pudo recibir el mensaje correctamente\n");
             	    continue;
 	  	}
 	        
-	  	nBytes = strlen(mensaje) + 1;
+	  	size_t len = strlen(mensaje);
 
 		printf("%d bytes recibidos\n",N);
 
 
-		// ponemos el mensaje en mayusculas
+		//Pasamos el mensaje a mayusculas, hasta llegar al fin de cadena
 		for (int i = 0; mensaje[i]!='\0'; i++) {
 			mensaje[i] = toupper(mensaje[i]);
 		}
-	    N = 0;
+	        N = 0;
 
-	    // devolvemos el mensaje en mayusculas
-		if ((N = sendto(socket_emisor,mensaje,nBytes,0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {
+	        /*Enviamos la línea, en minúsculas, al servidor
+                    socket: identificador del socket
+                    buffer: puntero a mensaje a enviar
+                    size: numero maximo de bytes a recibir
+                    flags: opciones de recepcion, por defecto 0
+                    addr: puntero a un struct sockaddr con la dirección a la que se quiere enviar
+                    length: tamaño de la estructura addr
+                */
+		if ((N = sendto(socket_emisor,mensaje,len+1,0,(struct sockaddr*) &ipport_receptor,size)) < 0) {
 		    perror("No se ha podido enviar el mensaje\n");
 		    continue;
 		}
 		
-        char ip_str[INET_ADDRSTRLEN];
-	    inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
+                char ip_str[INET_ADDRSTRLEN];
+                /*Convertir la dirección IP de binario a texto
+                    af: AF_INET para IPv4
+                    src: puntero a una struct in_addr (para IPv4)
+                    dst: puntero a cadena donde se guarda el resultado
+                    size: tamaño en bytes de la cadena destino
+                */
+	        inet_ntop(AF_INET,&(ipport_receptor.sin_addr),ip_str,INET_ADDRSTRLEN),
 		printf("%d bytes enviados a IP: %s, Puerto: %d\n",N,ip_str,ntohs(ipport_receptor.sin_port));
 
 	}
 
-    // cerramos el socket del emisor
+        //Cerramos el socket del emisor
 	close(socket_emisor);
 
 	return 0;

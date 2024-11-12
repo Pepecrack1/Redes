@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     struct sockaddr_in ipportserv,ipportcli;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
     
-    int puertocli,puertoserv; // Puerto del cliente y el servidor al que se conecta
+    uint16_t puertocli,puertoserv; // Puerto del cliente y el servidor al que se conecta
     char ipserv[INET_ADDRSTRLEN];
     
     char name_file[50];   // Nombre del archivo y la dirección IP, con tamaño INET_ADDRSTRLEN
@@ -23,19 +23,19 @@ int main(int argc, char** argv) {
     
     // Comprobamos que se introduzca el numero de argumentos correcto en línea de comandos
     if(argc == 5) {
-        strcpy(name_file, argv[1]);
-        puertocli = atoi(argv[2]);   // Primer argumento: puerto (convertido de string a entero)
-        strcpy(ipserv,argv[3]);
-        puertoserv=atoi(argv[4]);
+        strcpy(name_file, argv[1]); // Primer argumento: nombre del archivo
+        puertocli = (u_int16_t) atoi(argv[2]);  // Segundo argumento: puerto cliente (convertido de string a entero)
+        strcpy(ipserv,argv[3]);   // Tercer argumento: IP servidor
+        puertoserv= (u_int16_t) atoi(argv[4]); // Cuarto argumento: puerto servidor (convertido de string a entero)
         
     } else {
         // Valores por defecto si no se proporcionan argumentos
-        printf("No se proporcionaron argumentos correctos, trabajaremos con valores por defecto:  file.txt, 6666, 127.0.0.1, 6665\nSi se quisieran introducir argumentos, hacer: ./ejecutable puertoPropio IPservidor puertoServidor\n");
+        printf("No se proporcionaron argumentos correctos, trabajaremos con valores por defecto:  file.txt, 6666, 127.0.0.1, 6665\nSi se quisieran introducir argumentos, hacer: ./ejecutable archivo puertoPropio IPservidor puertoServidor\n");
         
-        strcpy(name_file, "file.txt");
-        puertocli = 6666;    // Puerto por defecto
-        strcpy(ipserv, "127.0.0.1");
-        puertoserv = 6665;    // Puerto por defecto
+        strcpy(name_file, "file.txt");  // Nombre de archivo por defecto
+        puertocli = 6666;    // Puerto propio por defecto
+        strcpy(ipserv, "127.0.0.1");  // IP servidor por defecto
+        puertoserv = 6665;    // Puerto servidor por defecto
     }
     
     /*Creación del socket del cliente
@@ -48,10 +48,10 @@ int main(int argc, char** argv) {
         return(EXIT_FAILURE);
     }
     
-    //Inicializamos estructura ipport del cliente
-    ipportcli.sin_addr.s_addr=htonl(INADDR_ANY);
-    ipportcli.sin_family=AF_INET;
-    ipportcli.sin_port=htons(puertocli);
+    //Inicializamos estructura sockaddr del cliente
+    ipportcli.sin_addr.s_addr=htonl(INADDR_ANY);  //Cualquier direccion IP
+    ipportcli.sin_family=AF_INET; //Familia de direcciones: IPv4
+    ipportcli.sin_port=htons(puertocli);  //Convertir el puerto de orden de host a orden de red, short
     
     //Inicializamos estructura ipport del servidor
     
@@ -66,8 +66,10 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
       
     }
-    ipportserv.sin_family = AF_INET;
-    ipportserv.sin_port = htons(puertoserv);
+    
+    //Inicializamos la estructura sockaddr del servidor
+    ipportserv.sin_family = AF_INET;  //Familia de direcciones: IPv4
+    ipportserv.sin_port = htons(puertoserv);  //Convertir el puerto de orden de host a orden de red, short
     
     
      /*Asignamos una direccion al socket con bind
@@ -82,33 +84,32 @@ int main(int argc, char** argv) {
     }
     
     
-    // Abrimos el archivo de entrada, solo lectura, y el de salida, solo escritura
+    // Abrimos el archivo de entrada, para lectura, y el de salida, para escritura, comprobando errores
     FILE *entrada;
     FILE *salida;
     entrada=fopen(name_file,"r");
-    for (int i = 0; name_file[i] != '\0'; i++) {
+    if (entrada == NULL) {
+        perror("Error al abrir el archivo");
+        return EXIT_FAILURE;
+    }
+    
+    for (int i = 0; name_file[i] != '\0'; i++) {  //Pasamos el nombre del archivo a mayúsculas para obtener el nombre del archivo de salida
         name_file[i] = toupper(name_file[i]);
     }
+    
     salida=fopen(name_file,"w");
-   
-    /*Convertir la dirección IP de binario a texto
-            af: AF_INET para IPv4
-            src: puntero a una struct in_addr (para IPv4)
-            dst: puntero a cadena donde se guarda el resultado
-            size: tamaño en bytes de la cadena destino
-    */
-    if (inet_ntop(AF_INET, (const void*) &(ipportserv.sin_addr), ipserv,INET_ADDRSTRLEN) != NULL){
-            printf("IP: %s\nPuerto: %d\n", ipserv, ntohs(ipportserv.sin_port));
+    if (salida == NULL) {
+        perror("Error al abrir el archivo");
+        return EXIT_FAILURE;
     }
     
     // Leemos cada linea del archivo de entrada
     size_t len = 0;
     
-    while(fgets(msg,sizeof(msg), entrada)!=NULL)  // Mientras no llega al final del archivo
+    while(fgets(msg,sizeof(msg), entrada)!=NULL)  // Mientras no llega al final del archivo, vamos leyendo cada línea
     {
-        len = strlen(msg);    // Obtenemos longitud de la linea leida
-        sleep(3);
-        
+        len = strlen(msg);    // Obtenemos longitud de la linea leida, para enviar el mensaje
+        int N=0;
         
         /*Enviamos la línea, en minúsculas, al servidor
                 socket: identificador del socket
@@ -118,21 +119,29 @@ int main(int argc, char** argv) {
                 addr: puntero a un struct sockaddr con la dirección a la que se quiere enviar
                 length: tamaño de la estructura addr
         */
-        if (sendto(socket_cliente,msg,len+1,0,(struct sockaddr*) &ipportserv,size) < 0) {
+        if ((N=sendto(socket_cliente,msg,len+1,0,(struct sockaddr*) &ipportserv,size)) < 0) {
 		perror("No se ha podido enviar el mensaje\n");
 		close(socket_cliente);
 		return(EXIT_FAILURE);
 	}
 	
-        /*Recibimos el tamaño del mensaje del servidor con recvfrom
-                socket: identificador del socket
-                buffer: puntero a donde se va a guardar el mensaje
-                size: numero maximo de bytes a recibir
-                flags: opciones de recepcion, por defecto 0
-                addr: puntero a un struct sockaddr con la dirección de la que se quiere enviar
-                length: tamaño de la estructura addr
+	/*Convertir la dirección IP de binario a texto
+            af: AF_INET para IPv4
+            src: puntero a una struct in_addr (para IPv4)
+            dst: puntero a cadena donde se guarda el resultado
+            size: tamaño en bytes de la cadena destino
         */
-        int N=0;
+        if (inet_ntop(AF_INET, (const void*) &(ipportserv.sin_addr), ipserv,INET_ADDRSTRLEN) != NULL)
+	printf("%d bytes enviados a IP: %s, Puerto: %d\n",N,ipserv, ntohs(ipportserv.sin_port));
+	
+        /*Recibimos el mensaje del servidor en mayúsculas con recvfrom
+            socket: identificador del socket del cliente
+            buffer: puntero a donde se va a guardar el mensaje
+            size: numero maximo de bytes a recibir
+            flags: opciones de recepcion, por defecto 0
+            addr: salida que es un puntero a un struct sockaddr con la dirección de la procedencia del paquete
+.           length_ptr: puntero que es parámetro de entrada indicando el tamaño de la estructura addr y de salida con el espacio real consumido
+        */
         if((N=recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportcli,&size)) < 0)
         {
             perror("No se pudo recibir el mensaje correctamente\n");
