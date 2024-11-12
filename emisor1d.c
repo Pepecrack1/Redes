@@ -58,10 +58,6 @@ int main(int argc,char** argv) {	// args: puerto_propio ip puerto_destinatario
 	printf("IP: %s\nPuerto: %d\n",ip_str,ntohs(ipport_receptor.sin_port));
 	
 	size_t nBytes=sizeof(array);
-	if (sendto(socket_emisor,&nBytes,sizeof(int),0,(struct sockaddr*) &ipport_receptor,length_ptr) < 0) {
-		perror("No se ha podido enviar el mensaje\n");
-		exit(EXIT_FAILURE);
-	}
 
     	// enviamos mensaje
 	if ((N = sendto(socket_emisor,array,sizeof(array),0,(struct sockaddr*) &ipport_receptor,length_ptr)) < 0) {

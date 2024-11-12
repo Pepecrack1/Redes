@@ -13,8 +13,6 @@ int main(int argc, char** argv) {
     int socket_cliente;   // Identificador del socket del cliente
     struct sockaddr_in ipportreceptor,ipportemisor;    // Estructuras para almacenar la dirección del emisor y receptor
     socklen_t size = sizeof(struct sockaddr_in);
-    
-    int tamano;
     float *msg;
     int puerto; // Puerto del servidor al que se conecta
     char ipconex[INET_ADDRSTRLEN];
@@ -54,20 +52,8 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
     
-    
-
-    if(recvfrom(socket_cliente,&tamano,sizeof(tamano),0,(struct sockaddr *) &ipportemisor,&size) < 0)
-    {
-        perror("No se pudo recibir el mensaje correctamente\n");
-        close(socket_cliente);
-        return(EXIT_FAILURE);
-    } 
-
-    if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
-            printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
-    }
-    
-    msg = malloc(tamano);  // Reservamos memoria para el mensaje
+    int tamanoMAX=1000*sizeof(float);
+    msg = malloc(tamanoMAX);  // Reservamos memoria para el mensaje, mucha memoria, para asegurarnos de que vaya a caber
     if (msg == NULL) {
         perror("ERROR en la reserva de memoria\n");
         free(msg); // Liberamos si falla
@@ -75,13 +61,19 @@ int main(int argc, char** argv) {
         return (EXIT_FAILURE);
     }
     
-    if(recvfrom(socket_cliente,msg,tamano*sizeof(float),0,(struct sockaddr *) &ipportemisor,&size) < 0)
+    int N;
+    if((N=recvfrom(socket_cliente,msg,tamanoMAX,0,(struct sockaddr *) &ipportemisor,&size)) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
         close(socket_cliente);
         return(EXIT_FAILURE);
     }
-    int num=(int)tamano/sizeof(float);
+    
+    if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
+            printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
+    }
+    
+    int num=N/sizeof(float);
     printf("El mensaje es: "); // Sacamos por pantalla el mensaje recibido
     for(int i=0;i<num;i++)
     {
