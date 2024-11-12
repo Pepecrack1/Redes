@@ -60,23 +60,17 @@ int main(int argc, char** argv) {
         return(EXIT_FAILURE);
     }    
     
-    /*Convertir la dirección IP de binario a texto
-            af: AF_INET para IPv4
-            src: puntero a una struct in_addr (para IPv4)
-            dst: puntero a cadena donde se guarda el resultado
-            size: tamaño en bytes de la cadena destino
-        */
+    //Convertir la dirección IP de binario a texto
     if (inet_ntop(AF_INET, (const void*) &(ipportemisor.sin_addr), ipconex,INET_ADDRSTRLEN) != NULL){
             printf("Se conectó cliente con IP: %s y puerto %d\n", ipconex, ntohs(ipportemisor.sin_port));
     }
     
-
     msg[5]='\0';
     // Sacamos por pantalla el mensaje recibido
     printf("El mensaje es: %s\n",msg);
     
     
-     //Recibimos el segundo mensaje del servidor con recvfrom
+    //Recibimos el segundo mensaje del servidor con recvfrom
     if(recvfrom(socket_cliente,msg,sizeof(msg),0,(struct sockaddr *) &ipportemisor,&size) < 0)
     {
         perror("No se pudo recibir el mensaje correctamente\n");
